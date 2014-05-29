@@ -11,6 +11,8 @@ This README would normally document whatever steps are necessary to get your app
 ### Requirements ###
 
 * Linux or Mac
+* Python (>= 2.7) `python -V`
+* Perl
 * [fqgrep](https://github.com/indraniel/fqgrep)
 * [trimmomatic (>= 0.32)](http://www.usadellab.org/cms/?page=trimmomatic)
 * [BWA (>= 0.7.8)](http://bio-bwa.sourceforge.net/)
