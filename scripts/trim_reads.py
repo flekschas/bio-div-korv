@@ -2,26 +2,33 @@
 import sys
 
 
-def trim_reads(fastq, selection, orientation, output, outputType, seqLen, trim):
-    # Read all ids that d
+def trim_reads(fastq, selection, orientation, output, outputType, seqLen,
+               trim):
+
+    # Store all read/sequence ids that did not match with KoRV
     ids = []
     with open(selection, 'r') as f:
         for line in f:
             ids.append(line.strip())
 
+    # Store trimming position for each read/sequence id
     trim_pros = {}
     for line in trim.split('\n'):
         if len(line):
             line = line.split('\t')
             if (line[0] == 'read name'):
-                if ((line[1] == 'end position' and orientation != 3) or
-                    (line[1] == 'start position' and orientation != 5)):
+                if (line[1] == 'end position' and orientation != 3) or \
+                   (line[1] == 'start position' and orientation != 5):
                     print('Wrong setting! 3\' trimming needs the end position'
                           'and 3\' trimming needs the start position.')
                     sys.exit()
             else:
                 trim_pros[line[0]] = int(line[1])
 
+    # Read fastq file line by line and copy a sequence to a new fastq file if:
+    # 1. Read did not align against KoRV (id is in selection)
+    # 2. Line is not blank
+    # 3. Sequence length is greater than the given seqLen
     with open(output, 'w') as o:
         with open(fastq, 'r') as f:
             while True:
@@ -30,10 +37,8 @@ def trim_reads(fastq, selection, orientation, output, outputType, seqLen, trim):
                 plus = f.readline()
                 quality = f.readline()
 
-                if (not identifier or
-                    not sequence or
-                    not plus or
-                    not quality):
+                if not identifier or not sequence or \
+                   not plus or not quality:
                     break
 
                 read_id = identifier.strip()[1:].split(' ')[0]
@@ -64,9 +69,11 @@ def trim_reads(fastq, selection, orientation, output, outputType, seqLen, trim):
 def main():
     trim = sys.stdin.read()
     if len(sys.argv) > 6:
-        trim_reads(sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4], sys.argv[5], int(sys.argv[6]), trim)
+        trim_reads(sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4],
+                   sys.argv[5], int(sys.argv[6]), trim)
     else:
-        print("trim_reads.py [fastq] [selection] [orientation] [output] [format] [maxlen] < [trimming-info]")
+        print("trim_reads.py [fastq] [selection] [orientation] [output] "
+              "[format] [maxlen] < [trimming-info]")
     sys.exit()
 
 if __name__ == "__main__":

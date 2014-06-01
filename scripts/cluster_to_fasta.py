@@ -19,32 +19,37 @@ def get_dictionary(in_reads):
 if __name__ == "__main__":
     clusterFile = sys.argv[1]
     originFastaFile = sys.argv[2]
-    fastaFile_folder = sys.argv[3]  # output folder
-    outputName = sys.argv[4]  # prefix
+    faDir = sys.argv[3]  # output folder
+    prefix = sys.argv[4]  # prefix
 
     cluster = open(clusterFile, "r")
     origin_fasta = open(originFastaFile, "r")
-    #fq_file = open(fastaFile, "w")
+    stat_file = open(faDir + "stat.txt", 'w')
 
+    stat_file.write("@ ClusterName \t SequencesPerCluster \n")
     dictionary = get_dictionary(origin_fasta)
 
-    number = 0
+    num = 0
     sequence = ""
+    seq_count = 0
     for line in cluster:
-        # line = line.strip()
         clusterA = line.strip().split('\t')
-        StringName = str(fastaFile_folder) + str(outputName) + str(number) + ".fasta"
-        fq_file = open(StringName, "w")
-        for i in clusterA:
-            if i in dictionary:
-                header = ">" + i + "\n"
-                sequence = dictionary[i] + "\n"
-                fq_file.write(header)
-                fq_file.write(sequence)
-            else:
-                print('hallo')
-        number += 1
+        stat_file.write(prefix + str(num) + "\t" +
+                        str(len(clusterA)) + "\n")
+
+        with open(faDir + prefix + "." + str(num) + ".fasta", "w") as fq:
+            seq_count += len(clusterA)
+            for i in clusterA:
+                if i in dictionary:
+                    header = ">" + i + "\n"
+                    sequence = dictionary[i] + "\n"
+                    fq.write(header)
+                    fq.write(sequence)
+        num += 1
+
+    stat_file.write("found " + str(num) + " cluster with " +
+                    str(seq_count) + " sequences")
 
     cluster.close()
     origin_fasta.close()
-    fq_file.close()
+    stat_file.close()

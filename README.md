@@ -13,16 +13,25 @@ With this pipeline the KoRV specific insertion sites in the Koala genome can be 
 
 * Linux or Mac
 * Python (>= 2.7)
-* Perl
+* Perl (>= 5.12)
 * [fqgrep](https://github.com/indraniel/fqgrep)
 * [trimmomatic (>= 0.32)](http://www.usadellab.org/cms/?page=trimmomatic)
 * [BWA (>= 0.7.8)](http://bio-bwa.sourceforge.net/)
-* [Samtools (>= 0.1.19)](http://samtools.sourceforge.net/)
-* [USearch (>= 7)](http://www.drive5.com/usearch/)
+* [DNAClust (>= 3)](http://dnaclust.sourceforge.net/)
 
 ### Install and run ###
 
 1. Clone repository `git clone https://bitbucket.org/flekschas/biodivex1 bioDivEx1`
 2. Go to the project folder `cd bioDivEx1`
-3. Open `scripts/run.sh` and adjust all path variables to match your system
-4. Make scripts executable `chmod +x scripts/run.sh` and run `scripts/run.sh` 
+3. Open `scripts/run.sh` and edit all path variables to match your system which can be found in section *config*.
+4. Adjust the application parameters to suite your problem in section *application parameters*.
+5. Make scripts executable `chmod +x scripts/run.sh`.
+6. Copy your FASTQ files into the data folder and group them into subfolders for later comparison. E.g. all FASTQ files from healthy tissues could be placed into `data/healthy` and all FASTQ files related to diseased tissues respecively into `data/diseased`.
+7. Copy the FASTA file with your retro virus genome into `data`.
+8. Run `scripts/runs.sh`
+
+### Results ###
+
+When the execution finished your should see a new folder called `results`. Within this folder you can find a clustering file of your possible insertion sites for 3 prime and 5 prime reads of all of your groups. E.g. [GROUPNAME].3_prime.cluster.txt and [GROUPNAME].5_prime.cluster.txt.
+
+Two subfolders called `results/cluster_3_prime` and `results/cluster_5_prime` hold FASTA files for each of the found instertion site clusters.

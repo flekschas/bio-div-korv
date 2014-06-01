@@ -52,7 +52,7 @@
 # Paths need NOT contain a trailing slash.
 
 # Base path to your working directory
-BASE="/Users/Fritz/Documents/Studium/BioInformatik/Master/Module/Biodiversity and Evolution/Exercise"
+BASE="/Users/Fritz/Documents/Studium/BioInformatik/Master/Module/Biodiversity and Evolution/Exercise/tool"
 
 # Path to commands
 FQGREP="fqgrep"
@@ -188,20 +188,23 @@ do
 
         echo "2. Quality control"
 
+        # Create log folder
+        mkdir -p "$BASE/log"
+
         # Trim Illumina Adapter sequences TruSeq V3 Single Reads
         java -jar $TRIMMOMATIC/trimmomatic-0.32.jar SE -phred33 \
         -trimlog "$BASE/log/all.3_prime_bait.trimming.log" \
         "${GROUP}/tmp/all.3_prime_bait.fastq" \
         "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" \
         ILLUMINACLIP:$TRIMMOMATIC/adapters/TruSeq3-SE.fa:2:30:10 \
-        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:14 MINLEN:30
+        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:14 MINLEN:30 \
 
         java -jar $TRIMMOMATIC/trimmomatic-0.32.jar SE -phred33 \
         -trimlog "$BASE/log/all.5_prime_bait.trimming.log" \
         "${GROUP}/tmp/all.5_prime_bait.fastq" \
         "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" \
         ILLUMINACLIP:$TRIMMOMATIC/adapters/TruSeq3-SE.fa:2:30:10 \
-        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:14 MINLEN:30
+        LEADING:3 TRAILING:3 SLIDINGWINDOW:4:14 MINLEN:30 \
 
         echo "   Done!"
 
@@ -263,11 +266,11 @@ do
         # For 3' we need the end match position (column 8)
         # For 5' we need the start match position (column 7)
         $FQGREP -r -p $KORV_3_PRIME_END -m $BAIT_ERR \
-        "${GROUP}/tmp/all.3_prime_bait_in_koala.fastq" | cut -f 1,8 \
+        "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" | cut -f 1,8 \
         | "$BASE/scripts/trim_reads.py" "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" "${GROUP}/tmp/read_ids_3_prime.exp" 3 "${GROUP}/tmp/all.3_prime_bait_in_koala.trimmed.fasta" "fasta" $INS_LEN
 
         $FQGREP -r -p $KORV_5_PRIME_END -m $BAIT_ERR \
-        "${GROUP}/tmp/all.5_prime_bait_in_koala.fastq" | cut -f 1,7 \
+        "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" | cut -f 1,7 \
         | "$BASE/scripts/trim_reads.py" "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" "${GROUP}/tmp/read_ids_5_prime.exp" 5 "${GROUP}/tmp/all.5_prime_bait_in_koala.trimmed.fasta" "fasta" $INS_LEN
 
         echo "done!"
