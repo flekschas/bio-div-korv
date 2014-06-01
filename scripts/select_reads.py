@@ -2,19 +2,8 @@
 import sys
 
 
-def trim_reads(fastq, orientation, output, outputType, seqLen, trim):
-    trim_pros = {}
-    for line in trim.split('\n'):
-        if len(line):
-            line = line.split('\t')
-            if (line[0] == 'read name'):
-                if ((line[1] == 'end position' and orientation != 3) or
-                    (line[1] == 'start position' and orientation != 5)):
-                    print('Wrong setting! 3\' trimming needs the end position'
-                          'and 3\' trimming needs the start position.')
-                    sys.exit()
-            else:
-                trim_pros[line[0]] = int(line[1])
+def select_reads(fastq, output, selection):
+    selection = selection.split('\n')
 
     with open(output, 'w') as o:
         with open(fastq, 'r') as f:
@@ -56,11 +45,11 @@ def trim_reads(fastq, orientation, output, outputType, seqLen, trim):
 #############
 
 def main():
-    trim = sys.stdin.read()
-    if len(sys.argv) > 4:
-        trim_reads(sys.argv[1], int(sys.argv[2]), sys.argv[3], sys.argv[4], int(sys.argv[5]), trim)
+    selection = sys.stdin.read()
+    if len(sys.argv) > 2:
+        select_reads(sys.argv[1], sys.argv[2], selection)
     else:
-        print("trim_reads.py [fastq] [orientation] [output] < [trimming-info]")
+        print("select_reads.py [fastq] [output] < [trimming-info]")
     sys.exit()
 
 if __name__ == "__main__":
