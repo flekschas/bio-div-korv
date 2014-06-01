@@ -193,14 +193,14 @@ do
 
         # Trim Illumina Adapter sequences TruSeq V3 Single Reads
         java -jar $TRIMMOMATIC/trimmomatic-0.32.jar SE -phred33 \
-        -trimlog "$BASE/log/all.3_prime_bait.trimming.log" \
+        -trimlog "$BASE/log/$GROUPNAME.3_prime_bait.trimming.log" \
         "${GROUP}/tmp/all.3_prime_bait.fastq" \
         "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" \
         ILLUMINACLIP:$TRIMMOMATIC/adapters/TruSeq3-SE.fa:2:30:10 \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:14 MINLEN:30 \
 
         java -jar $TRIMMOMATIC/trimmomatic-0.32.jar SE -phred33 \
-        -trimlog "$BASE/log/all.5_prime_bait.trimming.log" \
+        -trimlog "$BASE/log/$GROUPNAME.5_prime_bait.trimming.log" \
         "${GROUP}/tmp/all.5_prime_bait.fastq" \
         "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" \
         ILLUMINACLIP:$TRIMMOMATIC/adapters/TruSeq3-SE.fa:2:30:10 \

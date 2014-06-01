@@ -1,0 +1,16 @@
+# Ignore Mac specific files
+.DS_Store
+
+# Ignore BWA generated files
+data/**
+!data/*.fa
+!data/diseased/README.md
+!data/healthy/README.md
+
+# Ignore log files
+log/**
+!log/README.md
+
+# Ignore all files in results except for the readme.
+results/**
+!results/README.md
