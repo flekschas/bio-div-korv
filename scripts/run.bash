@@ -107,6 +107,9 @@ ID=0.8
 # 1. Selection of reads containing the bait sequence                           #
 ################################################################################
 
+# Remove old statistics file if exists
+rm -f "$BASE/results/stats.csv"
+
 # Using fqgrep we select all reads with the defined number of errors that
 # contain the two bait sequences related to the 5' and 3' LTR sequence.
 
@@ -293,13 +296,13 @@ do
         $DNACLUST "${GROUP}/tmp/all.5_prime_bait_in_koala.trimmed.fasta" -s $ID > "$BASE/results/$GROUPNAME.5_prime.cluster.txt"
 
         # Create subfolders for storing clusters fasta files
-        mkdir -p "$BASE/results/cluster_3_prime"
-        mkdir -p "$BASE/results/cluster_5_prime"
+        mkdir -p "$BASE/results/3_prime"
+        mkdir -p "$BASE/results/5_prime"
 
         # Generate a fasta file for every cluster which contains all clustered
         # reads.
-        "$BASE/scripts/cluster_to_fasta.py" "$BASE/results/$GROUPNAME.3_prime.cluster.txt" "${GROUP}/tmp/all.3_prime_bait_in_koala.trimmed.fasta" "$BASE/results/cluster_3_prime/" $GROUPNAME
-        "$BASE/scripts/cluster_to_fasta.py" "$BASE/results/$GROUPNAME.5_prime.cluster.txt" "${GROUP}/tmp/all.5_prime_bait_in_koala.trimmed.fasta" "$BASE/results/cluster_5_prime/" $GROUPNAME
+        "$BASE/scripts/cluster_to_fasta.py" "$BASE/results/$GROUPNAME.3_prime.cluster.txt" "${GROUP}/tmp/all.3_prime_bait_in_koala.trimmed.fasta" "$BASE/results" "3_prime" $GROUPNAME
+        "$BASE/scripts/cluster_to_fasta.py" "$BASE/results/$GROUPNAME.5_prime.cluster.txt" "${GROUP}/tmp/all.5_prime_bait_in_koala.trimmed.fasta" "$BASE/results" "5_prime" $GROUPNAME
 
         echo "done!"
     fi
