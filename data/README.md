@@ -31,27 +31,28 @@ two groups only.
 ### Sample vs sample ###
 
 We can rearrange the folders like follows to compare all of the samples against
-each other.
+each other. This structure may not be the most handy way when creating clusters
+for each single sample but it ensures a high flexibility.
 
 * data
     * TOG-ECAK-47628-T_S4_L001_R1_001/
-        * TOG-ECAK-47628-T_S4_L001_R1_001.fastq.g
+        * TOG-ECAK-47628-T_S4_L001_R1_001.fastq.gz
     * TOG-ECAK-47813-T_S3_L001_R1_001/
-        * TOG-ECAK-47813-T_S3_L001_R1_001.fastq.g
+        * TOG-ECAK-47813-T_S3_L001_R1_001.fastq.gz
     * TOG-ECAK-A30038-T_S6_L001_R1_001/
-        * TOG-ECAK-A30038-T_S6_L001_R1_001.fastq.g
+        * TOG-ECAK-A30038-T_S6_L001_R1_001.fastq.gz
     * TOG-ECAK-ELSIE-T_S5_L001_R1_001/
-        * TOG-ECAK-ELSIE-T_S5_L001_R1_001.fastq.g
+        * TOG-ECAK-ELSIE-T_S5_L001_R1_001.fastq.gz
     * TOG-ECAK-MG-T_S1_L001_R1_001/
-        * TOG-ECAK-MG-T_S1_L001_R1_001.fastq.g
+        * TOG-ECAK-MG-T_S1_L001_R1_001.fastq.gz
     * TOG-ECAK-47628-H_S4_L001_R1_001/
-        * TOG-ECAK-47628-H_S4_L001_R1_001.fastq.g
+        * TOG-ECAK-47628-H_S4_L001_R1_001.fastq.gz
     * TOG-ECAK-47813-H_S3_L001_R1_001/
-        * TOG-ECAK-47813-H_S3_L001_R1_001.fastq.g
+        * TOG-ECAK-47813-H_S3_L001_R1_001.fastq.gz
     * TOG-ECAK-A30038-H_S6_L001_R1_001/
-        * TOG-ECAK-A30038-H_S6_L001_R1_001.fastq.g
+        * TOG-ECAK-A30038-H_S6_L001_R1_001.fastq.gz
     * TOG-ECAK-ELSIE-H_S5_L001_R1_001/
-        * TOG-ECAK-ELSIE-H_S5_L001_R1_001.fastq.g
+        * TOG-ECAK-ELSIE-H_S5_L001_R1_001.fastq.gz
     * TOG-ECAK-MG-H_S1_L001_R1_001/
-        * TOG-ECAK-MG-H_S1_L001_R1_001.fastq.g
+        * TOG-ECAK-MG-H_S1_L001_R1_001.fastq.gz
     * korv.fa
