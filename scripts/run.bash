@@ -19,7 +19,10 @@
 # |-data
 #   |-<GROUPS>
 #     |-tmp
+# |-log
 # |-results
+#   |- 3_prime
+#   |- 5_prime
 # |-scripts
 #
 # Folder description:
@@ -32,17 +35,20 @@
 # /data/<GROUPS>/tmp
 # The tmp folder holds all working files which can be deleted after the run.
 #
+# /log
+# Contains log files created by trimmomatic
+#
 # /results
 # This folder contains the cluster description given by DNAClust
-# /results/cluster_3_prime
+# /results/3_prime
 # Contains the fasta files for each cluster of the <GROUPS> found at the 3 prime
 # end.
-# /results/cluster_5_prime
+# /results/5_prime
 # Contains the fasta files for each cluster of the <GROUPS> found at the 5 prime
 # end.
 #
 # /scripts
-# This folder contains all relevant scripts
+# This folder contains all relevant scripts needed for the analysis.
 
 ################################################################################
 # Config                                                                       #
@@ -52,6 +58,7 @@
 # Paths need NOT contain a trailing slash.
 
 # Base path to your working directory
+# Do NOT put a trailing slash '/' at the end of the path
 BASE="/Users/Fritz/Documents/Studium/BioInformatik/Master/Module/Biodiversity and Evolution/Exercise/tool"
 
 # Path to commands
@@ -69,9 +76,12 @@ KORV="korv"
 KORV_3_PRIME_END='CTACCCGAACATTGGGGTCTTTCAT'
 KORV_5_PRIME_END='AATGAAGGAGGCAGAAATCATGAGG'
 
-# Use GNU parallel to massively speed up read selection
-# At least two cores are needed to make use of parallelising the selection
-PARALLEL=true
+# Use GNU parallel to halve running time of read selection
+# At least two cores are needed to make use of parallelising
+# Path to GNU parallel
+PARALLEL="parallel"
+# Set true to use GNU parallel
+PARALLEL_USE=true
 
 
 
@@ -95,9 +105,44 @@ ID=0.8
 # Test config                                                                  #
 ################################################################################
 
-# Run a few tests:
-# paths exists?
-# application exists?
+# Run a few tests to avoid run time errors.
+
+# Does base paths exists?
+if [ ! -d "$BASE" ]; then
+    echo "The given base path doesn't lead to a directory. Aborting!"
+    echo "Path: $BASE"
+    exit 1
+fi
+
+# Is the base directory writable?
+if [ ! -w "$BASE" ]; then
+    echo "The given base directoy exists but is not writable. Aborting!"
+    echo "Path: $BASE"
+    exit 1
+fi
+
+# Do applications / commands exists?
+if ! type $FQGREP >/dev/null 2>&1; then
+    echo "Fqgrep not found. Aborting!"
+    echo "fqgrep: $FQGREP"
+    exit 1
+fi
+if ! type $BWA >/dev/null 2>&1; then
+    echo "BWA not found. Aborting!"
+    echo "BWA: $BWA"
+    exit 1
+fi
+if ! type $DNACLUST >/dev/null 2>&1; then
+    echo "DNAClust not found. Aborting!"
+    echo "DNAClust: $DNACLUST"
+    exit 1
+fi
+if $PARALLEL_USE && ! type $PARALLEL >/dev/null 2>&1; then
+    echo "GNU Parallel not found. Please edit the path or install it."
+    echo "Running analysis without GNU parallel."
+    PARALLEL_USE=false
+fi
+
 # python?
 # perl?
 
@@ -106,6 +151,10 @@ ID=0.8
 ################################################################################
 # 1. Selection of reads containing the bait sequence                           #
 ################################################################################
+
+# Start timer
+
+ANALYSIS_START=`date +%s`
 
 # Remove old statistics file if exists
 rm -f "$BASE/results/stats.csv"
@@ -148,12 +197,12 @@ do
 
             # Get reads containing the 3' and 5' LTR bait sequence
             # Skip the read selection if the file is already found!
-            if $PARALLEL;
+            if $PARALLEL_USE;
             then
                 # Use GNU parallel to
                 [[ -f "${GROUP}/tmp/$FILE.3_prime_bait.fastq" && -f "${GROUP}/tmp/$FILE.5_prime_bait.fastq" ]] || \
                 printf "$BAIT_3_PRIME\t$BAIT_ERR\t${GROUP}/tmp/$FILE.3_prime_bait.fastq\t${READS}\n$BAIT_5_PRIME\t$BAIT_ERR\t${GROUP}/tmp/$FILE.5_prime_bait.fastq\t${READS}\n" | \
-                parallel --no-notice --colsep "\t" -j 2 "$FQGREP -p {1} -m {2} -o {3} {4}"
+                $PARALLEL --no-notice --colsep "\t" -j 2 "$FQGREP -p {1} -m {2} -o {3} {4}"
             else
                 [ -f "${GROUP}/tmp/$FILE.3_prime_bait.fastq" ] || \
                 $FQGREP -p $BAIT_3_PRIME -m $BAIT_ERR \
@@ -307,3 +356,8 @@ do
         echo "done!"
     fi
 done
+
+ANALYSIS_END=`date +%s`
+ANALYSIS_RUNTIME=$((ANALYSIS_END-ANALYSIS_START))
+
+echo "Finished! ($ANALYSIS_RUNTIME seconds)"

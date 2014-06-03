@@ -18,6 +18,7 @@ With this pipeline the KoRV specific insertion sites in the Koala genome can be 
 * [trimmomatic (>= 0.32)](http://www.usadellab.org/cms/?page=trimmomatic)
 * [BWA (>= 0.7.8)](http://bio-bwa.sourceforge.net/)
 * [DNAClust (>= 3)](http://dnaclust.sourceforge.net/)
+* [GNU Parallel](https://www.gnu.org/software/parallel/) (optional)
 
 ### Install and run ###
 
