@@ -63,7 +63,8 @@ BASE="/Users/Fritz/Documents/Studium/BioInformatik/Master/Module/Biodiversity an
 
 # Path to commands
 FQGREP="fqgrep"
-TRIMMOMATIC="/Applications/trimmomatic-0.32"
+TRIMMOMATIC_BASE="/Applications/trimmomatic-0.32"
+TRIMMOMATIC="trimmomatic-0.32.jar"
 BWA="bwa"
 DNACLUST="dnaclust"
 
@@ -73,6 +74,9 @@ BAIT_5_PRIME="AGGAGGCAGAAATCATGAGG"
 
 # KoRV genome
 KORV="korv"
+# How many bases is the bait sequence away from the end of the genome?
+KORV_3_PRIME_EXTRA=5
+KORV_5_PRIME_EXTRA=5
 KORV_3_PRIME_END='CTACCCGAACATTGGGGTCTTTCAT'
 KORV_5_PRIME_END='AATGAAGGAGGCAGAAATCATGAGG'
 
@@ -127,6 +131,19 @@ if ! type $FQGREP >/dev/null 2>&1; then
     echo "fqgrep: $FQGREP"
     exit 1
 fi
+# Does base paths exists?
+if [ -d "$TRIMMOMATIC_BASE" ];
+then
+    if [ ! -f "$TRIMMOMATIC_BASE/$TRIMMOMATIC" ]; then
+        echo "Trimmomatic jar file not found. Aborting!"
+        echo "Trimmomatic: $TRIMMOMATIC_BASE/$TRIMMOMATIC"
+        exit 1
+    fi
+else
+    echo "The given path to trimmomatic doesn't exist. Aborting!"
+    echo "Path: $TRIMMOMATIC_BASE"
+    exit 1
+fi
 if ! type $BWA >/dev/null 2>&1; then
     echo "BWA not found. Aborting!"
     echo "BWA: $BWA"
@@ -143,8 +160,23 @@ if $PARALLEL_USE && ! type $PARALLEL >/dev/null 2>&1; then
     PARALLEL_USE=false
 fi
 
-# python?
-# perl?
+if [ ! -f "$BASE/data/$KORV.fa" ]; then
+    echo "FASTA file of the KoRV genome not found. Aborting!"
+    echo "Path: $BASE/data/$KORV.fa"
+    exit 1
+fi
+
+# Test if python exists
+if ! type python >/dev/null 2>&1; then
+    echo "Python not found. Aborting!"
+    exit 1
+fi
+
+# Test if perl exists
+if ! type perl >/dev/null 2>&1; then
+    echo "Perl not found. Aborting!"
+    exit 1
+fi
 
 
 
@@ -244,18 +276,18 @@ do
         mkdir -p "$BASE/log"
 
         # Trim Illumina Adapter sequences TruSeq V3 Single Reads
-        java -jar $TRIMMOMATIC/trimmomatic-0.32.jar SE -phred33 \
+        java -jar "$TRIMMOMATIC_BASE/$TRIMMOMATIC" SE -phred33 \
         -trimlog "$BASE/log/$GROUPNAME.3_prime_bait.trimming.log" \
         "${GROUP}/tmp/all.3_prime_bait.fastq" \
         "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" \
-        ILLUMINACLIP:$TRIMMOMATIC/adapters/TruSeq3-SE.fa:2:30:10 \
+        ILLUMINACLIP:$TRIMMOMATIC_BASE/adapters/TruSeq3-SE.fa:2:30:10 \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:14 MINLEN:30 \
 
-        java -jar $TRIMMOMATIC/trimmomatic-0.32.jar SE -phred33 \
+        java -jar "$TRIMMOMATIC_BASE/$TRIMMOMATIC" SE -phred33 \
         -trimlog "$BASE/log/$GROUPNAME.5_prime_bait.trimming.log" \
         "${GROUP}/tmp/all.5_prime_bait.fastq" \
         "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" \
-        ILLUMINACLIP:$TRIMMOMATIC/adapters/TruSeq3-SE.fa:2:30:10 \
+        ILLUMINACLIP:$TRIMMOMATIC_BASE/adapters/TruSeq3-SE.fa:2:30:10 \
         LEADING:3 TRAILING:3 SLIDINGWINDOW:4:14 MINLEN:30 \
 
         echo "   Done!"
@@ -293,7 +325,7 @@ do
 
         # Now we collect all reads that haven't matched with KoRV
 
-        printf "   Collect unmatched reads... "
+        printf "   Collect unmapped reads... "
 
         # Create or empty a file for temporal storage of read identifiers
         >| "${GROUP}/tmp/read_ids_3_prime.exp"
@@ -317,13 +349,22 @@ do
         # end position of matches for.
         # For 3' we need the end match position (column 8)
         # For 5' we need the start match position (column 7)
-        $FQGREP -r -p $KORV_3_PRIME_END -m $BAIT_ERR \
-        "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" | cut -f 1,8 \
-        | "$BASE/scripts/trim_reads.py" "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" "${GROUP}/tmp/read_ids_3_prime.exp" 3 "${GROUP}/tmp/all.3_prime_bait_in_koala.trimmed.fasta" "fasta" $INS_LEN
 
-        $FQGREP -r -p $KORV_5_PRIME_END -m $BAIT_ERR \
+        # $FQGREP -r -p $KORV_3_PRIME_END -m $BAIT_ERR \
+        # "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" | cut -f 1,8 \
+        # | "$BASE/scripts/trim_reads.py" "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" "${GROUP}/tmp/read_ids_3_prime.exp" 0 3 "${GROUP}/tmp/all.3_prime_bait_in_koala.trimmed.fasta" "fasta" $INS_LEN
+
+        # $FQGREP -r -p $KORV_5_PRIME_END -m $BAIT_ERR \
+        # "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" | cut -f 1,7 \
+        # | "$BASE/scripts/trim_reads.py" "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" "${GROUP}/tmp/read_ids_5_prime.exp" 0 5 "${GROUP}/tmp/all.5_prime_bait_in_koala.trimmed.fasta" "fasta" $INS_LEN
+
+        $FQGREP -r -p $BAIT_3_PRIME -m $BAIT_ERR \
+        "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" | cut -f 1,8 \
+        | "$BASE/scripts/trim_reads.py" "${GROUP}/tmp/all.3_prime_bait.trimmed.fastq" "${GROUP}/tmp/read_ids_3_prime.exp" $KORV_3_PRIME_EXTRA 3 "${GROUP}/tmp/all.3_prime_bait_in_koala.trimmed.fasta" "fasta" $INS_LEN
+
+        $FQGREP -r -p $BAIT_5_PRIME -m $BAIT_ERR \
         "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" | cut -f 1,7 \
-        | "$BASE/scripts/trim_reads.py" "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" "${GROUP}/tmp/read_ids_5_prime.exp" 5 "${GROUP}/tmp/all.5_prime_bait_in_koala.trimmed.fasta" "fasta" $INS_LEN
+        | "$BASE/scripts/trim_reads.py" "${GROUP}/tmp/all.5_prime_bait.trimmed.fastq" "${GROUP}/tmp/read_ids_5_prime.exp" $KORV_5_PRIME_EXTRA 5 "${GROUP}/tmp/all.5_prime_bait_in_koala.trimmed.fasta" "fasta" $INS_LEN
 
         echo "done!"
 

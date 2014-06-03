@@ -2,8 +2,8 @@
 import sys
 
 
-def trim_reads(fastq, selection, orientation, output, outputType, seqLen,
-               trim):
+def trim_reads(fastq, selection, extra_cut, orientation, output, outputType,
+               seqLen, trim):
 
     # Store all read/sequence ids that did not match with KoRV
     ids = []
@@ -43,23 +43,26 @@ def trim_reads(fastq, selection, orientation, output, outputType, seqLen,
 
                 read_id = identifier.strip()[1:].split(' ')[0]
 
-                if (read_id in ids and read_id in trim_pros):
-                    if (orientation == 3):
-                        sequence = sequence[trim_pros[read_id]:(trim_pros[read_id] + seqLen)].strip()
-                        quality = quality[trim_pros[read_id]:(trim_pros[read_id] + seqLen)].strip()
-                    if (orientation == 5):
-                        sequence = sequence[max(trim_pros[read_id] - seqLen, 0):trim_pros[read_id]]
-                        quality = quality[max(trim_pros[read_id] - seqLen, 0):trim_pros[read_id]]
+                if read_id in ids:
+                    if read_id in trim_pros:
+                        if (orientation == 3):
+                            cut = trim_pros[read_id] + extra_cut
+                            sequence = sequence[cut:(cut + seqLen)].strip()
+                            quality = quality[cut:(cut + seqLen)].strip()
+                        if (orientation == 5):
+                            cut = trim_pros[read_id] - extra_cut
+                            sequence = sequence[max(cut - seqLen, 0):cut]
+                            quality = quality[max(cut - seqLen, 0):cut]
 
-                    if (len(sequence) >= seqLen):
-                        if (outputType == 'fasta'):
-                            o.write('>' + identifier[1:])
-                            o.write(sequence[:seqLen] + '\n')
-                        else:
-                            o.write(identifier)
-                            o.write(sequence[:seqLen] + '\n')
-                            o.write(plus)
-                            o.write(quality[:seqLen] + '\n')
+                        if (len(sequence) >= seqLen):
+                            if (outputType == 'fasta'):
+                                o.write('>' + identifier[1:])
+                                o.write(sequence[:seqLen] + '\n')
+                            else:
+                                o.write(identifier)
+                                o.write(sequence[:seqLen] + '\n')
+                                o.write(plus)
+                                o.write(quality[:seqLen] + '\n')
 
 
 #############
@@ -68,12 +71,13 @@ def trim_reads(fastq, selection, orientation, output, outputType, seqLen,
 
 def main():
     trim = sys.stdin.read()
-    if len(sys.argv) > 6:
-        trim_reads(sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4],
-                   sys.argv[5], int(sys.argv[6]), trim)
+    if len(sys.argv) > 7:
+        trim_reads(sys.argv[1], sys.argv[2], int(sys.argv[3]),
+                   int(sys.argv[4]), sys.argv[5], sys.argv[6],
+                   int(sys.argv[7]), trim)
     else:
-        print("trim_reads.py [fastq] [selection] [orientation] [output] "
-              "[format] [maxlen] < [trimming-info]")
+        print("trim_reads.py [fastq] [selection] [extracut] [orientation] "
+              "[output] [format] [maxlen] < [trimming-info]")
     sys.exit()
 
 if __name__ == "__main__":
