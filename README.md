@@ -1,15 +1,19 @@
-# Biodiversity and Evolution - Identification of KoRV insertion sites in Koala genome (exercise 1) #
+# Biodiversity and Evolution - Identification of KoRV insertion sites in Koala genome
 
-With this pipeline the KoRV specific insertion sites in the Koala genome can be identified.
+Koala (Phascolarctos cinereus) retrovirus (KoRV): identification of insertion sites and relationship to cancer- related genes. With this pipeline the KoRV specific insertion sites in the Koala genome can be identified.
 
-### Pipeline overview ###
+**Presentation:**
+
+[speakerdeck.com/flekschas/biodiversity-and-evolution-environmental-metagenomics-and-metabarcoding](https://speakerdeck.com/flekschas/biodiversity-and-evolution-environmental-metagenomics-and-metabarcoding)
+
+## Pipeline overview
 
 1. Read selection: Select reads containing the bait sequence.
 2. Quality control: Trim bases with low quality and cut adapter sequences.
 3. Read preparation: Discard reads that are going into the KoRV genome rather than the Koala genome and finally cut bait and remaining KoRV sequences.
 4. Clustering: Cluster reads to identify different insertion sites in healthy and tumour tissue.
 
-### Requirements ###
+## Requirements
 
 * Linux or Mac
 * Python (>= 2.7)
@@ -20,9 +24,9 @@ With this pipeline the KoRV specific insertion sites in the Koala genome can be 
 * [DNAClust (>= 3)](http://dnaclust.sourceforge.net/)
 * [GNU Parallel](https://www.gnu.org/software/parallel/) (optional)
 
-### Install and run ###
+## Install and run
 
-1. Clone repository `git clone https://bitbucket.org/flekschas/biodivex1 bioDivEx1`
+1. Clone repository `git clone https://github.com/flekschas/bio-div-korv`
 2. Go to the project folder `cd bioDivEx1`
 3. Open `nano scripts/run.bash` and edit all path variables to match your system which can be found in section *config*.
 4. Adjust the application parameters to suite your problem in section *application parameters*.
@@ -32,7 +36,7 @@ explanations please have a look at the `README.md` files inside the data folder.
 7. Copy the `FASTA` file with your retro virus genome into `data`. For the KoRV analysis we already included `korv.fa`.
 8. Run `scripts/runs.bash`
 
-### Results ###
+## Results
 
 When the execution finished your should see a new folder called `results`. Within this folder you can find a clustering file of your possible insertion sites for 3 prime and 5 prime reads of all of your groups. E.g. [GROUPNAME].3_prime.cluster.txt and [GROUPNAME].5_prime.cluster.txt.
 
@@ -40,7 +44,7 @@ Two sub folders called `results/3_prime` and `results/5_prime` hold `FASTA` file
 
 Finally you should find `results/stats.csv` a small file holding a few statistics about the clusters.
 
-### Run time ###
+## Run time
 
 The first run takes about 15 minutes on a MacBook Air 2012 with 2 cores and GNU parallel enabled. The bait selection
 takes most of the time.
@@ -48,3 +52,7 @@ A second run on the same data using the same groups then only takes about 6 seco
 selected reads. So parameter adjustments is convenient.
 
 **Note**: If you change the bait sequence and still want to use the old sequence files and groups please delete the `data/[GROUP]/tmp` folders first. Otherwise the script won't use the new bait sequence.
+
+### Authors
+
+Fritz Lekschas, Annkatrin Bressin, Melanie Liedtke, Nina Kersten
